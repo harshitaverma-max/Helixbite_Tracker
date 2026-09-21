@@ -40,7 +40,7 @@ Each connector has setup notes at the top of its file:
 |---|---|---|
 | Events | `server/src/routes/events.ts` | Manual entry via `POST /api/events` — there's no API for "which trade shows did we attend," so this is the intended source of truth. Wire a small admin form to it. |
 | Instagram followers | `server/src/connectors/instagram.ts` | Instagram Graph API, polled hourly. Needs `INSTAGRAM_ACCESS_TOKEN` + `INSTAGRAM_BUSINESS_ACCOUNT_ID`. |
-| Amazon orders | `server/src/connectors/amazon.ts` | Selling Partner API, polled every 5 min (no order webhook exists). Needs `AMAZON_SP_API_REFRESH_TOKEN`; the actual SP-API call is stubbed pending real credentials. |
+| Amazon orders | `server/src/connectors/amazon.ts` | Selling Partner API, polled every 5 min (no order webhook exists). Needs `AMAZON_SP_API_REFRESH_TOKEN`, `AMAZON_SP_API_CLIENT_ID`, `AMAZON_SP_API_CLIENT_SECRET`, `AMAZON_SP_API_MARKETPLACE_ID`, `AMAZON_SP_API_REGION`. |
 | Website orders | `server/src/connectors/website.ts` | Shopify/WooCommerce order-created webhook → `POST /api/webhooks/website`, HMAC-verified via `WEBSITE_WEBHOOK_SECRET`. |
 | WhatsApp orders | `server/src/connectors/whatsapp.ts` | WhatsApp Cloud API webhook → `POST /api/webhooks/whatsapp`, verified on setup via `WHATSAPP_VERIFY_TOKEN`. |
 
