@@ -7,6 +7,22 @@ import { StatTile } from "./components/StatTile.js";
 
 const POLL_INTERVAL_MS = 15_000;
 
+function formatMoney(currency: string, amount: number): string {
+  return `${currency} ${amount.toLocaleString()}`;
+}
+
+function salesTile(byCurrency: Summary["sales"]["byCurrency"]) {
+  if (byCurrency.length === 0) {
+    return { value: "—", sublabel: undefined };
+  }
+  const [primary, ...rest] = byCurrency;
+  const sublabelParts = [`${formatMoney(primary.currency, primary.today)} today`];
+  if (rest.length > 0) {
+    sublabelParts.push(`+ ${rest.map((c) => formatMoney(c.currency, c.total)).join(", ")}`);
+  }
+  return { value: formatMoney(primary.currency, primary.total), sublabel: sublabelParts.join(" · ") };
+}
+
 export function App() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,12 +66,7 @@ export function App() {
         <>
           <section className="tile-grid">
             <StatTile label="Events participated" value={summary.events.total.toLocaleString()} live />
-            <StatTile
-              label="Sales so far"
-              value={`${summary.sales.currency} ${summary.sales.total.toLocaleString()}`}
-              sublabel={`${summary.sales.currency} ${summary.sales.today.toLocaleString()} today`}
-              live
-            />
+            <StatTile label="Sales so far" {...salesTile(summary.sales.byCurrency)} live />
             <StatTile
               label="Instagram followers"
               value={summary.instagram.followers?.toLocaleString() ?? "—"}

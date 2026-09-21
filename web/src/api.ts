@@ -24,9 +24,15 @@ export interface MetricSnapshot {
   recordedAt: string;
 }
 
+export interface CurrencyTotal {
+  currency: string;
+  total: number;
+  today: number;
+}
+
 export interface Summary {
   events: { total: number; recent: EventRecord[] };
-  sales: { total: number; today: number; currency: string };
+  sales: { byCurrency: CurrencyTotal[] };
   instagram: {
     followers: number | null;
     lastUpdated: string | null;

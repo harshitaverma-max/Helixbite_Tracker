@@ -18,8 +18,24 @@ export function buildSummary() {
   const todayCutoff = startOfToday();
   const ordersToday = orders.filter((o) => o.receivedAt >= todayCutoff);
 
-  const totalSales = orders.reduce((sum, o) => sum + o.amount, 0);
-  const salesToday = ordersToday.reduce((sum, o) => sum + o.amount, 0);
+  // Orders can legitimately arrive in different currencies (e.g. USD via
+  // Amazon/Website, INR via WhatsApp) — summing across currencies without
+  // converting would produce a number that's both wrong and mislabeled, so
+  // totals are kept separate per currency instead.
+  const totalsByCurrency = new Map<string, { total: number; today: number }>();
+  for (const order of orders) {
+    const bucket = totalsByCurrency.get(order.currency) ?? { total: 0, today: 0 };
+    bucket.total += order.amount;
+    if (order.receivedAt >= todayCutoff) bucket.today += order.amount;
+    totalsByCurrency.set(order.currency, bucket);
+  }
+  const salesByCurrency = [...totalsByCurrency.entries()]
+    .map(([currency, { total, today }]) => ({
+      currency,
+      total: Math.round(total * 100) / 100,
+      today: Math.round(today * 100) / 100,
+    }))
+    .sort((a, b) => b.total - a.total);
 
   const ordersBySource: Record<OrderSource, number> = { amazon: 0, website: 0, whatsapp: 0 };
   for (const source of SOURCES) {
@@ -32,9 +48,7 @@ export function buildSummary() {
       recent: events.slice(0, 5),
     },
     sales: {
-      total: Math.round(totalSales * 100) / 100,
-      today: Math.round(salesToday * 100) / 100,
-      currency: orders[0]?.currency ?? "USD",
+      byCurrency: salesByCurrency,
     },
     instagram: {
       followers: followers?.value ?? null,

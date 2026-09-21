@@ -1,4 +1,4 @@
-import { Router, raw } from "express";
+import { Router, json, raw } from "express";
 import { db } from "../db.js";
 import { normalizeWebsiteOrder, verifySignature } from "../connectors/website.js";
 import { extractOrders, verifyHandshake } from "../connectors/whatsapp.js";
@@ -49,7 +49,7 @@ webhooksRouter.get("/webhooks/whatsapp", (req, res) => {
   }
 });
 
-webhooksRouter.post("/webhooks/whatsapp", (req, res) => {
+webhooksRouter.post("/webhooks/whatsapp", json(), (req, res) => {
   const orders = extractOrders(req.body);
   for (const normalized of orders) {
     if (db.orderExists("whatsapp", normalized.externalId)) continue;
